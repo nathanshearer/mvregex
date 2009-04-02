@@ -1,0 +1,34 @@
+#!/bin/bash
+
+if [ $# -eq 0 -o "$1" = "-h" -o "$1" = "--help" ]; then
+	printf "mvregex moves any files that match the given regular expression.\n"
+	printf "Usage:\n"
+	printf "  mvregex <source_regex> <destination_regex> <files>\n"
+	printf "    Moves any <files> that match <source_regex> to <destination_regex>.\n"
+	printf "  mvregex -d <source_regex> <destination_regex> <files>\n"
+	printf "    Performs a dry run and prints out what files will be moved. No\n"
+	printf "    files are actually moved.\n"
+	exit 0;
+fi
+
+case "$1" in
+	"-d")
+		shift
+		SOURCE_REGEX="$1"; shift
+		DESTINATION_REGEX="$1"; shift
+		for FILE in "$@"; do
+			DESTINATION=`printf "$FILE" | sed -r "s/$SOURCE_REGEX/$DESTINATION_REGEX/"`
+			printf "$FILE -> $DESTINATION\n"
+		done
+		;;
+	*)
+		SOURCE_REGEX="$1"; shift
+		DESTINATION_REGEX="$1"; shift
+		for FILE in "$@"; do
+			DESTINATION=`printf "$FILE" | sed -r "s/$SOURCE_REGEX/$DESTINATION_REGEX/"`
+			if [ "$FILE" != "$DESTINATION" ]; then
+				mv "$FILE" "$DESTINATION"
+			fi
+		done
+		;;
+esac
