@@ -1,13 +1,38 @@
 #!/bin/bash
 
+#----------------------------------------------------------------------------
+# mvregex
+# Copyright (C) 2007 Nathan Shearer
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to:
+#   The Free Software Foundation Inc.
+#   51 Franklin Street
+#   Fifth Floor
+#   Boston, MA
+#   02110-1301
+#   USA
+
+COPYRIGHT="Copyright (C) 2009 Nathan Shearer"
+VERSION="1.0.0.0"
+
 if [ $# -eq 0 -o "$1" = "-h" -o "$1" = "--help" ]; then
-	printf "mvregex moves any files that match the given regular expression.\n"
-	printf "Usage:\n"
-	printf "  mvregex <source_regex> <destination_regex> <files>\n"
-	printf "    Moves any <files> that match <source_regex> to <destination_regex>.\n"
-	printf "  mvregex -d <source_regex> <destination_regex> <files>\n"
-	printf "    Performs a dry run and prints out what files will be moved. No\n"
-	printf "    files are actually moved.\n"
+	echo "mvregex moves any files that match the given regular expression."
+	echo "Usage:"
+	echo "  mvregex <source_regex> <destination_regex> <files>"
+	echo "    Moves any <files> that match <source_regex> to <destination_regex>."
+	echo "  mvregex -d <source_regex> <destination_regex> <files>"
+	echo "    Performs a dry run and prints out what files will be moved. No"
+	echo "    files are actually moved."
 	exit 0;
 fi
 
@@ -17,15 +42,15 @@ case "$1" in
 		SOURCE_REGEX="$1"; shift
 		DESTINATION_REGEX="$1"; shift
 		for FILE in "$@"; do
-			DESTINATION=`printf "$FILE" | sed -r "s/$SOURCE_REGEX/$DESTINATION_REGEX/"`
-			printf "$FILE -> $DESTINATION\n"
+			DESTINATION=`echo -n "$FILE" | sed -r "s/$SOURCE_REGEX/$DESTINATION_REGEX/"`
+			echo "$FILE -> $DESTINATION"
 		done
 		;;
 	*)
 		SOURCE_REGEX="$1"; shift
 		DESTINATION_REGEX="$1"; shift
 		for FILE in "$@"; do
-			DESTINATION=`printf "$FILE" | sed -r "s/$SOURCE_REGEX/$DESTINATION_REGEX/"`
+			DESTINATION=`echo -n "$FILE" | sed -r "s/$SOURCE_REGEX/$DESTINATION_REGEX/"`
 			if [ "$FILE" != "$DESTINATION" ]; then
 				mv "$FILE" "$DESTINATION"
 			fi
