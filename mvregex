@@ -52,7 +52,7 @@ case "$1" in
 		for FILE in "$@"; do
 			DESTINATION=`echo -n "$FILE" | sed -r "s/$SOURCE_REGEX/$DESTINATION_REGEX/"`
 			if [ "$FILE" != "$DESTINATION" ]; then
-				mv "$FILE" "$DESTINATION"
+				mv -i "$FILE" "$DESTINATION"
 			fi
 		done
 		;;
