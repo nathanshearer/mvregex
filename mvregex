@@ -22,38 +22,115 @@
 #   02110-1301
 #   USA
 
+NAME="mvregex"
+CODENAME="mvregex"
 COPYRIGHT="Copyright (C) 2009 Nathan Shearer"
-VERSION="1.0.0.0"
+VERSION="0.0.0.0"
 
-if [ $# -eq 0 -o "$1" = "-h" -o "$1" = "--help" ]; then
-	echo "mvregex moves any files that match the given regular expression."
+# \brief Ensures dependencies are present
+# \param $@ The dependencies to check for
+function mvregex_check_dependencies
+{
+	for TOOL in "$@"; do
+		if ! type "$TOOL" >/dev/null 2>/dev/null; then
+			echo "$CODENAME: \"$TOOL\" is required for this application to work correctly." >&2
+			exit
+		fi
+	done
+}
+
+# \brief Displays the help and exits the program
+function mvregex_help
+{
+	#     01234567890123456789012345678901234567890123456789012345678901234567890123456789
+	echo "$NAME $VERSION"
+	echo "$COPYRIGHT"
+	echo
+	echo "mvregex will move any files that match the given regular expression."
+	echo
 	echo "Usage:"
-	echo "  mvregex <source_regex> <destination_regex> <files>"
-	echo "    Moves any <files> that match <source_regex> to <destination_regex>."
-	echo "  mvregex -d <source_regex> <destination_regex> <files>"
-	echo "    Performs a dry run and prints out what files will be moved. No"
-	echo "    files are actually moved."
-	exit 0;
+	echo "  mvregex [options] SOURCE_REGEX DESTINATION_REGEX FILE..."
+	echo "Options:"
+	echo "  -h, --help"
+	echo "    Display this help message and exit."
+	echo "  -p, --pretend"
+	echo "    Performs a dry run and prints out what files would be moved. No files are"
+	echo "    actually moved. This option will set the verbosity level to 1."
+	#echo "  -v, --verbose #"
+	#echo "    Use more or less verbose output. Valid values are from 0 to 2 inclusive:"
+	#echo "      0  Default. No output"
+	#echo "      1  Show only the files that are moved"
+	#echo "      2  Show all files that are processed, even if they are not moved"
+	echo "Examples:"
+	echo "  $CODENAME -p '[jJ][pP][eE]?[gG]\$' 'jpg' *"
+	echo "  $CODENAME -p '^([0-9])([0-9][0-9])' 'S\1E\2' *.mkv"
+	exit;
+}
+
+#------------------------------------------------------------------------------
+# default configuration
+#
+PRETEND=false
+VERBOSE=1
+
+#------------------------------------------------------------------------------
+# config files
+#
+if [ -r /etc/$CODENAME.conf ]; then
+	. /etc/$CODENAME.conf
+fi
+if [ -r ~/.$CODENAME.conf ]; then
+	. ~/.$CODENAME.conf
 fi
 
-case "$1" in
-	"-d")
-		shift
-		SOURCE_REGEX="$1"; shift
-		DESTINATION_REGEX="$1"; shift
-		for FILE in "$@"; do
-			DESTINATION=`echo -n "$FILE" | sed -r "s/$SOURCE_REGEX/$DESTINATION_REGEX/"`
-			echo "$FILE -> $DESTINATION"
-		done
-		;;
-	*)
-		SOURCE_REGEX="$1"; shift
-		DESTINATION_REGEX="$1"; shift
-		for FILE in "$@"; do
-			DESTINATION=`echo -n "$FILE" | sed -r "s/$SOURCE_REGEX/$DESTINATION_REGEX/"`
-			if [ "$FILE" != "$DESTINATION" ]; then
-				mv -i "$FILE" "$DESTINATION"
-			fi
-		done
-		;;
-esac
+#------------------------------------------------------------------------------
+# command line arguments
+#
+
+if [ $# -eq 0 ]; then
+	gentooinstall_help
+	exit 1
+fi
+
+THIS="$0"
+while [ $# -ne 0 ]; do
+	case "$1" in
+		"-h"|"--help")
+			mvregex_help
+			exit
+			;;
+		"-p"|"--pretend")
+			PRETEND=true
+			VERBOSE=1
+			shift
+			;;
+		*)
+			break;;
+	esac
+done
+
+SOURCE_REGEX="$1"
+shift
+DESTINATION_REGEX="$1"
+shift
+
+#------------------------------------------------------------------------------
+# prepare environment
+
+mvregex_check_dependencies sed mv
+
+#------------------------------------------------------------------------------
+# begin execution
+
+for SOURCE in "$@"; do
+	DESTINATION=`echo -n "$SOURCE" | sed -r "s/$SOURCE_REGEX/$DESTINATION_REGEX/"`
+	if $PRETEND; then
+		if [ "$SOURCE" != "$DESTINATION" ]; then
+			echo "‘$SOURCE’ -> ‘$DESTINATION’"
+		fi
+	else
+		if [ "$SOURCE" != "$DESTINATION" ]; then
+			mv -n -v "$SOURCE" "$DESTINATION"
+		fi
+	fi
+done
