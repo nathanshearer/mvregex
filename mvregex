@@ -1,30 +1,9 @@
-#!/bin/bash
-
-#----------------------------------------------------------------------------
-# mvregex
-# Copyright (C) 2007 Nathan Shearer
-#
-# This program is free software; you can redistribute it and/or modify it
-# under the terms of the GNU General Public License version 2 as published by
-# the Free Software Foundation.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-# more details.
-#
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to:
-#   The Free Software Foundation Inc.
-#   51 Franklin Street
-#   Fifth Floor
-#   Boston, MA
-#   02110-1301
-#   USA
+#!/usr/bin/env bash
 
 NAME="mvregex"
 CODENAME="mvregex"
-COPYRIGHT="Copyright (C) 2009 Nathan Shearer"
+COPYRIGHT="Copyright (C) 2007 Nathan Shearer"
+LICENSE="GNU General Public License 2.0"
 VERSION="0.0.0.0"
 
 # \brief Ensures dependencies are present
@@ -43,35 +22,57 @@ function mvregex_check_dependencies
 function mvregex_help
 {
 	#     01234567890123456789012345678901234567890123456789012345678901234567890123456789
-	echo "$NAME $VERSION"
-	echo "$COPYRIGHT"
-	echo
-	echo "mvregex will move any files that match the given regular expression."
+	echo "Synopsis"
+	echo "  Move any files that match the given regular expression."
 	echo
 	echo "Usage:"
 	echo "  mvregex [options] SOURCE_REGEX DESTINATION_REGEX FILE..."
+	echo
 	echo "Options:"
+	echo "  -f, --force"
+	echo "    Do not prompt before overwriting files. Disabled by default, but writable"
+	echo "    files are still overwritten by default."
+	echo "    Without this option, mv will overwrite files that are writable, and only"
+	echo "    prompt for files that are not writable."
+	echo "    With this option, mv will overwrite all files without prompting."
+	echo "    If you specify more than one of -f, -i, -n, only the final one takes effect."
+	echo "    See -i or -n to disable overwriting existing files."
 	echo "  -h, --help"
 	echo "    Display this help message and exit."
+	echo "  -i, --interactive"
+	echo "    Prompt before overwriting files. Disabled by default."
+	echo "    If you specify more than one of -f, -i, -n, only the final one takes effect."
+	echo "  -n, --no-clobber"
+	echo "    Do not overwrite files. Disabled by default."
+	echo "    If you specify more than one of -f, -i, -n, only the final one takes effect."
 	echo "  -p, --pretend"
 	echo "    Performs a dry run and prints out what files would be moved. No files are"
 	echo "    actually moved. This option will set the verbosity level to 1."
-	#echo "  -v, --verbose #"
-	#echo "    Use more or less verbose output. Valid values are from 0 to 2 inclusive:"
-	#echo "      0  Default. No output"
-	#echo "      1  Show only the files that are moved"
-	#echo "      2  Show all files that are processed, even if they are not moved"
+	echo "  -v"
+	echo "    Show only the files that are moved. The same as --verbose 1."
+	echo "  --verbose #"
+	echo "    Use more or less verbose output. Valid values are from 0 to 2 inclusive:"
+	echo "      0  Default. No output"
+	echo "      1  Show only the files that are moved"
+	echo "      2  Show all files that are processed"
+	echo
 	echo "Examples:"
 	echo "  $CODENAME -p '[jJ][pP][eE]?[gG]\$' 'jpg' *"
 	echo "  $CODENAME -p '^([0-9])([0-9][0-9])' 'S\1E\2' *.mkv"
+	echo
+	echo "Version:"
+	echo "  $NAME $VERSION"
+	echo "  $COPYRIGHT"
+	echo "  Licensed under $LICENSE"
 	exit;
 }
 
 #------------------------------------------------------------------------------
 # default configuration
 #
+MV_ARGS=""
 PRETEND=false
-VERBOSE=1
+VERBOSE=0
 
 #------------------------------------------------------------------------------
 # config files
@@ -88,21 +89,41 @@ fi
 #
 
 if [ $# -eq 0 ]; then
-	gentooinstall_help
+	mvregex_help
 	exit 1
 fi
 
 THIS="$0"
 while [ $# -ne 0 ]; do
 	case "$1" in
+		"-f"|"--force")
+			MV_ARGS="$MV_ARGS -f"
+			shift
+			;;
 		"-h"|"--help")
 			mvregex_help
 			exit
+			;;
+		"-i"|"--interactive")
+			MV_ARGS="$MV_ARGS -i"
+			shift
+			;;
+		"-n"|"--no-clobber")
+			MV_ARGS="$MV_ARGS -n"
+			shift
 			;;
 		"-p"|"--pretend")
 			PRETEND=true
 			VERBOSE=1
 			shift
+			;;
+		"-v")
+			VERBOSE=1
+			shift
+			;;
+		"--verbose")
+			VERBOSE="$2"
+			shift 2
 			;;
 		*)
 			break;;
@@ -124,13 +145,13 @@ mvregex_check_dependencies sed mv
 
 for SOURCE in "$@"; do
 	DESTINATION=`echo -n "$SOURCE" | sed -r "s/$SOURCE_REGEX/$DESTINATION_REGEX/"`
-	if $PRETEND; then
-		if [ "$SOURCE" != "$DESTINATION" ]; then
-			echo "‘$SOURCE’ -> ‘$DESTINATION’"
-		fi
-	else
-		if [ "$SOURCE" != "$DESTINATION" ]; then
-			mv -n -v "$SOURCE" "$DESTINATION"
-		fi
+	if [ \( $VERBOSE -ge 1 \) -a \( "$SOURCE" != "$DESTINATION" \) ]; then
+		echo "‘$SOURCE’ -> ‘$DESTINATION’"
+	fi
+	if [ \( $VERBOSE -ge 2 \) -a \( "$SOURCE" = "$DESTINATION" \) ]; then
+		echo "‘$SOURCE’ -> ‘$DESTINATION’"
+	fi
+	if ! $PRETEND && [ "$SOURCE" != "$DESTINATION" ]; then
+		mv $MV_ARGS "$SOURCE" "$DESTINATION"
 	fi
 done
