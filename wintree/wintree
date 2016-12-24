@@ -33,7 +33,14 @@ function wintree_convert
 			continue
 		fi
 		local LINNAME=`basename "$FILE"`
-		local WINNAME=`basename "$FILE" | tr "\\\\:*?\"<>|" _`
+		# convert asterisk to _
+		local WINNAME="$LINNAME"
+		# convert backslash to _
+		WINNAME=`printf "$WINNAME" | sed 's/\/_/g'`
+		# convert colon to ratio
+		#WINNAME=`printf "$WINNAME" | sed 's/:/∶/g'`
+		
+		#local WINNAME=`basename "$FILE" | tr "\\\\:*?\"<>|" _`
 		if [ -d "$FILE" ]; then
 			wintree_convert "$FILE" "$2/$WINNAME"
 			continue
@@ -92,4 +99,5 @@ shift 2
 
 # begin execution
 
-wintree_convert "$LINTREE" "$WINTREE"
+cp -rs "$LINTREE" "$WINTREE"
+find "$WINTREE" 
