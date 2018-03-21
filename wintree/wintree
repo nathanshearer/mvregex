@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #----------------------------------------------------------------------------
-# Wintree
+# wintree
 # Copyright (C) 2007 Nathan Shearer
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -22,8 +22,11 @@
 #   02110-1301
 #   USA
 
+NAME="wintree"
+CODENAME="wintree"
 COPYRIGHT="Copyright (C) 2007 Nathan Shearer"
-VERSION="1.0.0.0"
+LICENSE="GNU General Public License 2.0"
+VERSION="1.1.0.0"
 
 function wintree_convert
 {
@@ -32,72 +35,102 @@ function wintree_convert
 		if [ "$FILE" = "$1/*" ]; then
 			continue
 		fi
-		local LINNAME=`basename "$FILE"`
-		# convert asterisk to _
-		local WINNAME="$LINNAME"
-		# convert backslash to _
-		WINNAME=`printf "$WINNAME" | sed 's/\/_/g'`
+		local LINNAME=$(basename "$FILE")
+		local WINNAME=$(basename "$FILE")
+		# convert backslashes to underscore
+		WINNAME=$(echo -n "$WINNAME" | tr '\\\\' _)
 		# convert colon to ratio
-		#WINNAME=`printf "$WINNAME" | sed 's/:/∶/g'`
-		
-		#local WINNAME=`basename "$FILE" | tr "\\\\:*?\"<>|" _`
+		WINNAME=$(echo -n "$WINNAME" | sed 's/:/∶/g')
+		# convert asterisk to heavy asterisk
+		WINNAME=$(echo -n "$WINNAME" | sed 's/\*/✱/g')
+		# convert to interrobang
+		WINNAME=$(echo -n "$WINNAME" | sed -r "s/\!\?/‽/g")
+		WINNAME=$(echo -n "$WINNAME" | sed -r "s/\?\!/‽/g")
+		# convert question mark to underscore
+		WINNAME=$(echo -n "$WINNAME" | sed 's/\?/_/g')
+		# convert double quote to two single quotes
+		WINNAME=$(echo -n "$WINNAME" | sed "s/\"/\'\'/g")
+		# convert pipe to underscore
+		WINNAME=$(echo -n "$WINNAME" | sed 's/|/_/g')
+		# convert the rest to underscore
+		WINNAME=$(echo -n "$WINNAME" | tr "<>|" _)
 		if [ -d "$FILE" ]; then
 			wintree_convert "$FILE" "$2/$WINNAME"
 			continue
 		fi
-		ln -s "$1/$LINNAME" $2/${WINNAME}
+		if [ "$LINK_TYPE" = "symbolic" ]; then
+			cp -s "$1/$LINNAME" "$2/${WINNAME}"
+		elif [ "$LINK_TYPE" = "hard" ]; then
+			cp -l "$1/$LINNAME" "$2/${WINNAME}"
+		fi
 		if [ "$LINNAME" != "$WINNAME" ]; then
 			echo "\"$1/$LINNAME\" -> \"$2/$WINNAME\""
 		fi
 	done
 }
 
+# \brief Displays the help and exits the program
 function wintree_help
 {
-	echo "Wintree converts a tree of files and folders into a tree of folders and symbolic"
-	echo "links with windows friendly filenames."
-	echo ""
+	#     01234567890123456789012345678901234567890123456789012345678901234567890123456789
+	echo "Description:"
+	echo "  Recursively copies a directory into windows friendly filenames."
+	echo
 	echo "Usage:"
-	echo "  wintree <linux_tree> <windows_tree>"
+	echo "  $CODENAME [options] <linux_dir> <windows_dir>"
+	echo
 	echo "Options:"
-	echo "  -h"
+	echo "  -h, --help"
 	echo "    Display this help message and exit."
-	echo "  -v"
-	echo "    Print the version and exit."
+	echo "  -l, --link"
+	echo "    Hard link files instead of creating symbolic links."
+	echo "  -s, --symbolic-link"
+	echo "    Make symbolic links instead of hard links. Enabled by default."
+	echo
 	echo "Examples:"
-	echo "  wintree storage windows_storage"
-}
-
-function wintree_version
-{
-	echo "Wintree $VERSION $COPYRIGHT"
-}
-
-# defaults
-
-# load configuration
-
-# parse command line arguments
-if [ $# -eq 0 ]; then
-	wintree_help
+	echo "  wintree /mnt/storage /mnt/storage.wintree"
+	echo
+	echo "Version:"
+	echo "  $NAME $VERSION"
+	echo "  $COPYRIGHT"
+	echo "  Licensed under $LICENSE"
 	exit
-fi
-while getopts "hv" OPTION; do
-	case "$OPTION" in
-		"h") wintree_help; exit;;
-		"v") wintree_version; exit;;
-		*) wintree_help; exit;;
+}
+
+#------------------------------------------------------------------------------
+# default configuration
+
+LINK_TYPE=symbolic
+
+#------------------------------------------------------------------------------
+# command line arguments
+
+while [ $# -ne 2 ]; do
+	case "$1" in
+		"-h"|"--help")
+			wintree_help
+			exit
+			;;
+		"-l"|"--link")
+			LINK_TYPE=hard
+			shift
+			;;
+		"-s"|"--symbolic-link")
+			LINK_TYPE=symbolic
+			shift
+			;;
+		*)
+			wintree_help
+			exit
+			;;
 	esac
 done
-shift $(($OPTIND - 1))
-LINTREE=`readlink -f "$1"`
+LINDIR=$(readlink -f "$1")
 mkdir -p "$2"
-WINTREE=`readlink -f "$2"`
+WINDIR=$(readlink -f "$2")
 shift 2
 
-# prepare environment
-
+#------------------------------------------------------------------------------
 # begin execution
 
-cp -rs "$LINTREE" "$WINTREE"
-find "$WINTREE" 
+wintree_convert "$LINDIR" "$WINDIR"
