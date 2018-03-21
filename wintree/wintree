@@ -89,6 +89,7 @@ function wintree_help
 	echo
 	echo "Examples:"
 	echo "  wintree /mnt/storage /mnt/storage.wintree"
+	echo "  wintree -l /mnt/storage /mnt/storage.wintree"
 	echo
 	echo "Version:"
 	echo "  $NAME $VERSION"
