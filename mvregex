@@ -1,11 +1,5 @@
 #!/usr/bin/env bash
 
-NAME="mvregex"
-CODENAME="mvregex"
-COPYRIGHT="Copyright (C) 2007 Nathan Shearer"
-LICENSE="GNU General Public License 2.0"
-VERSION="0.0.0.0"
-
 # \brief Ensures dependencies are present
 # \param $@ The dependencies to check for
 function mvregex_check_dependencies
@@ -22,11 +16,11 @@ function mvregex_check_dependencies
 function mvregex_help
 {
 	#     01234567890123456789012345678901234567890123456789012345678901234567890123456789
-	echo "Synopsis"
-	echo "  Move any files that match the given regular expression."
+	echo "Description:"
+	echo "  Move files that match the given regular expression."
 	echo
 	echo "Usage:"
-	echo "  mvregex [options] SOURCE_REGEX DESTINATION_REGEX FILE..."
+	echo "  $CODENAME [options] SOURCE_REGEX DESTINATION_REGEX FILE..."
 	echo
 	echo "Options:"
 	echo "  -f, --force"
@@ -68,15 +62,24 @@ function mvregex_help
 }
 
 #------------------------------------------------------------------------------
+# hard coded variables
+
+NAME="mvregex"
+CODENAME="mvregex"
+COPYRIGHT="Copyright (C) 2007 Nathan Shearer"
+LICENSE="GNU General Public License 2.0"
+VERSION="1.0.0.0"
+
+#------------------------------------------------------------------------------
 # default configuration
-#
+
 MV_ARGS=""
 PRETEND=false
 VERBOSE=0
 
 #------------------------------------------------------------------------------
 # config files
-#
+
 if [ -r /etc/$CODENAME.conf ]; then
 	. /etc/$CODENAME.conf
 fi
@@ -86,7 +89,6 @@ fi
 
 #------------------------------------------------------------------------------
 # command line arguments
-#
 
 if [ $# -eq 0 ]; then
 	mvregex_help

@@ -1,5 +1,5 @@
-Synopsis
-  Move any files that match the given regular expression.
+Description:
+  Move files that match the given regular expression.
 
 Usage:
   mvregex [options] SOURCE_REGEX DESTINATION_REGEX FILE...
@@ -37,6 +37,6 @@ Examples:
   mvregex -p '^([0-9])([0-9][0-9])' 'S\1E\2' *.mkv
 
 Version:
-  mvregex 0.0.0.0
+  mvregex 1.0.0.0
   Copyright (C) 2007 Nathan Shearer
   Licensed under GNU General Public License 2.0
