@@ -1,5 +1,5 @@
 Description:
-  Move files that match the given regular expression.
+  Move or rename files that match the given regular expression.
 
 Usage:
   mvregex [options] SOURCE_REGEX DESTINATION_REGEX FILE...
@@ -8,9 +8,9 @@ Options:
   -f, --force
     Do not prompt before overwriting files. Disabled by default, but writable
     files are still overwritten by default.
-    Without this option, mv will overwrite files that are writable, and only
-    prompt for files that are not writable.
-    With this option, mv will overwrite all files without prompting.
+    Without this option, mvregex will overwrite files that are writable, and
+    only prompt for files that are not writable.
+    With this option, mvregex will overwrite all files without prompting.
     If you specify more than one of -f, -i, -n, only the final one takes effect.
     See -i or -n to disable overwriting existing files.
   -h, --help
@@ -33,10 +33,16 @@ Options:
       2  Show all files that are processed
 
 Examples:
-  mvregex -p '[jJ][pP][eE]?[gG]$' 'jpg' *
-  mvregex -p '^([0-9])([0-9][0-9])' 'S\1E\2' *.mkv
+  Convert "JPG" extension to "jpg"
+    mvregex -p -v '[jJ][pP][eE]?[gG]$' 'jpg' *
+  Convert "###" to "S#E##"
+    mvregex -p -v '^([0-9])([0-9][0-9])' 'S\1E\2' *.mkv
+  Convert upper case to lower case
+    mvregex -p -v '(.*)' '\L\1' *
+  Convert lower case to upper case
+    mvregex -p -v '(.*)' '\U\1' *
 
 Version:
-  mvregex 1.0.0.0
+  mvregex 1.0.1.0
   Copyright (C) 2007 Nathan Shearer
   Licensed under GNU General Public License 2.0

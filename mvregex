@@ -17,7 +17,7 @@ function mvregex_help
 {
 	#     01234567890123456789012345678901234567890123456789012345678901234567890123456789
 	echo "Description:"
-	echo "  Move files that match the given regular expression."
+	echo "  Move or rename files that match the given regular expression."
 	echo
 	echo "Usage:"
 	echo "  $CODENAME [options] SOURCE_REGEX DESTINATION_REGEX FILE..."
@@ -26,9 +26,9 @@ function mvregex_help
 	echo "  -f, --force"
 	echo "    Do not prompt before overwriting files. Disabled by default, but writable"
 	echo "    files are still overwritten by default."
-	echo "    Without this option, mv will overwrite files that are writable, and only"
-	echo "    prompt for files that are not writable."
-	echo "    With this option, mv will overwrite all files without prompting."
+	echo "    Without this option, mvregex will overwrite files that are writable, and"
+	echo "    only prompt for files that are not writable."
+	echo "    With this option, mvregex will overwrite all files without prompting."
 	echo "    If you specify more than one of -f, -i, -n, only the final one takes effect."
 	echo "    See -i or -n to disable overwriting existing files."
 	echo "  -h, --help"
@@ -51,8 +51,14 @@ function mvregex_help
 	echo "      2  Show all files that are processed"
 	echo
 	echo "Examples:"
-	echo "  $CODENAME -p '[jJ][pP][eE]?[gG]\$' 'jpg' *"
-	echo "  $CODENAME -p '^([0-9])([0-9][0-9])' 'S\1E\2' *.mkv"
+	echo "  Convert \"JPG\" extension to \"jpg\""
+	echo "    $CODENAME -p -v '[jJ][pP][eE]?[gG]\$' 'jpg' *"
+	echo "  Convert \"###\" to \"S#E##\""
+	echo "    $CODENAME -p -v '^([0-9])([0-9][0-9])' 'S\1E\2' *.mkv"
+	echo "  Convert upper case to lower case"
+	echo "    $CODENAME -p -v '(.*)' '\L\1' *"
+	echo "  Convert lower case to upper case"
+	echo "    $CODENAME -p -v '(.*)' '\U\1' *"
 	echo
 	echo "Version:"
 	echo "  $NAME $VERSION"
@@ -68,7 +74,7 @@ NAME="mvregex"
 CODENAME="mvregex"
 COPYRIGHT="Copyright (C) 2007 Nathan Shearer"
 LICENSE="GNU General Public License 2.0"
-VERSION="1.0.0.0"
+VERSION="1.0.1.0"
 
 #------------------------------------------------------------------------------
 # default configuration
