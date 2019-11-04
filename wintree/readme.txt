@@ -9,12 +9,14 @@ Options:
     Display this help message and exit.
   -l, --link
     Hard link files instead of creating symbolic links.
+  -p, --pretend
+    Do not make any changes. Output files that are renamed in the destination.
   -s, --symbolic-link
     Make symbolic links instead of hard links. Enabled by default.
 
 Examples:
-  wintree /mnt/storage /mnt/storage.wintree
-  wintree -l /mnt/storage /mnt/storage.wintree
+  wintree -p /mnt/storage /mnt/storage.wintree
+  wintree -p -l /mnt/storage /mnt/storage.wintree
 
 Version:
   wintree 1.1.0.0
