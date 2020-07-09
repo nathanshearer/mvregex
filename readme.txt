@@ -8,9 +8,9 @@ Options:
   -f, --force
     Do not prompt before overwriting files. Disabled by default, but writable
     files are still overwritten by default.
-    Without this option, mvregex will overwrite files that are writable, and
-    only prompt for files that are not writable.
-    With this option, mvregex will overwrite all files without prompting.
+    Without this option, overwrite files that are writable, and only prompt for
+    files that are not writable.
+    With this option, overwrite all files without prompting.
     If you specify more than one of -f, -i, -n, only the final one takes effect.
     See -i or -n to disable overwriting existing files.
   -h, --help
@@ -23,14 +23,14 @@ Options:
     If you specify more than one of -f, -i, -n, only the final one takes effect.
   -p, --pretend
     Performs a dry run and prints out what files would be moved. No files are
-    actually moved. This option will set the verbosity level to 1.
+    actually moved. This option will increase the verbosity level from 0 to 1.
   -v
     Show only the files that are moved. The same as --verbose 1.
   --verbose #
-    Use more or less verbose output. Valid values are from 0 to 2 inclusive:
-      0  Default. No output
-      1  Show only the files that are moved
-      2  Show all files that are processed
+    Use more or less verbose output. Valid values are:
+      0  Default. No output.
+      1  Show only the files that are moved.
+      2  Show all files that are processed.
 
 Examples:
   Convert "JPG" extension to "jpg"
@@ -43,6 +43,6 @@ Examples:
     mvregex -p -v '(.*)' '\U\1' *
 
 Version:
-  mvregex 1.0.1.0
+  mvregex 1.0.2.1
   Copyright (C) 2007 Nathan Shearer
   Licensed under GNU General Public License 2.0
