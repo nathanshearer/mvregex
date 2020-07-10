@@ -25,12 +25,12 @@ Options:
     Performs a dry run and prints out what files would be moved. No files are
     actually moved. This option will increase the verbosity level from 0 to 1.
   -v
-    Show only the files that are moved. The same as --verbose 1.
+    Increase the verbosity level by 1.
   --verbose #
     Use more or less verbose output. Valid values are:
       0  Default. No output.
       1  Show only the files that are moved.
-      2  Show all files that are processed.
+      2  Show all files.
 
 Examples:
   Convert "JPG" extension to "jpg"
@@ -43,6 +43,6 @@ Examples:
     mvregex -p -v '(.*)' '\U\1' *
 
 Version:
-  mvregex 1.0.2.1
+  mvregex 2.0.0.0
   Copyright (C) 2007 Nathan Shearer
   Licensed under GNU General Public License 2.0

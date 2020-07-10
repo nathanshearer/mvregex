@@ -42,12 +42,12 @@ function mvregex_help
 	echo "    Performs a dry run and prints out what files would be moved. No files are"
 	echo "    actually moved. This option will increase the verbosity level from 0 to 1."
 	echo "  -v"
-	echo "    Show only the files that are moved. The same as --verbose 1."
+	echo "    Increase the verbosity level by 1."
 	echo "  --verbose #"
 	echo "    Use more or less verbose output. Valid values are:"
 	echo "      0  Default. No output."
 	echo "      1  Show only the files that are moved."
-	echo "      2  Show all files that are processed."
+	echo "      2  Show all files."
 	echo
 	echo "Examples:"
 	echo "  Convert \"JPG\" extension to \"jpg\""
@@ -72,7 +72,7 @@ NAME="mvregex"
 CODENAME="mvregex"
 COPYRIGHT="Copyright (C) 2007 Nathan Shearer"
 LICENSE="GNU General Public License 2.0"
-VERSION="1.0.2.1"
+VERSION="2.0.0.0"
 
 #------------------------------------------------------------------------------
 # default configuration
@@ -126,7 +126,7 @@ while [ $# -ne 0 ]; do
 			shift
 			;;
 		"-v")
-			VERBOSE=1
+			VERBOSE=$(($VERBOSE+1))
 			shift
 			;;
 		"--verbose")
@@ -152,14 +152,14 @@ mvregex_check_dependencies sed mv
 # begin execution
 
 for SOURCE in "$@"; do
-	DESTINATION=`echo -n "$SOURCE" | sed -r "s/$SOURCE_REGEX/$DESTINATION_REGEX/"`
+	DESTINATION=$(printf %s "$SOURCE" | sed -r "s/$SOURCE_REGEX/$DESTINATION_REGEX/")
 	if [ \( $VERBOSE -ge 1 \) -a \( "$SOURCE" != "$DESTINATION" \) ]; then
-		echo "‘$SOURCE’ -> ‘$DESTINATION’"
+		printf '%s\n' "'$SOURCE' -> '$DESTINATION'"
 	fi
 	if [ \( $VERBOSE -ge 2 \) -a \( "$SOURCE" = "$DESTINATION" \) ]; then
-		echo "‘$SOURCE’ -> ‘$DESTINATION’"
+		printf '%s\n' "'$SOURCE' -> '$DESTINATION'"
 	fi
 	if ! $PRETEND && [ "$SOURCE" != "$DESTINATION" ]; then
-		mv $MV_ARGS "$SOURCE" "$DESTINATION"
+		mv $MV_ARGS -- "$SOURCE" "$DESTINATION"
 	fi
 done
