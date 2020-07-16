@@ -6,7 +6,7 @@ function mvregex_check_dependencies
 {
 	for TOOL in "$@"; do
 		if ! type "$TOOL" >/dev/null 2>/dev/null; then
-			echo "$CODENAME: \"$TOOL\" is required for this application to work correctly." >&2
+			printf '%s\n' "$CODENAME: \"$TOOL\" is required for this application to work correctly." >&2
 			exit
 		fi
 	done
@@ -15,54 +15,54 @@ function mvregex_check_dependencies
 function mvregex_help
 {
 	#     01234567890123456789012345678901234567890123456789012345678901234567890123456789
-	echo "Description:"
-	echo "  Move or rename files that match the given regular expression."
-	echo
-	echo "Usage:"
-	echo "  $CODENAME [options] SOURCE_REGEX DESTINATION_REGEX FILE..."
-	echo
-	echo "Options:"
-	echo "  -f, --force"
-	echo "    Do not prompt before overwriting files. Disabled by default, but writable"
-	echo "    files are still overwritten by default."
-	echo "    Without this option, overwrite files that are writable, and only prompt for"
-	echo "    files that are not writable."
-	echo "    With this option, overwrite all files without prompting."
-	echo "    If you specify more than one of -f, -i, -n, only the final one takes effect."
-	echo "    See -i or -n to disable overwriting existing files."
-	echo "  -h, --help"
-	echo "    Display this help message and exit."
-	echo "  -i, --interactive"
-	echo "    Prompt before overwriting files. Disabled by default."
-	echo "    If you specify more than one of -f, -i, -n, only the final one takes effect."
-	echo "  -n, --no-clobber"
-	echo "    Do not overwrite files. Disabled by default."
-	echo "    If you specify more than one of -f, -i, -n, only the final one takes effect."
-	echo "  -p, --pretend"
-	echo "    Performs a dry run and prints out what files would be moved. No files are"
-	echo "    actually moved. This option will increase the verbosity level from 0 to 1."
-	echo "  -v"
-	echo "    Increase the verbosity level by 1."
-	echo "  --verbose #"
-	echo "    Use more or less verbose output. Valid values are:"
-	echo "      0  Default. No output."
-	echo "      1  Show only the files that are moved."
-	echo "      2  Show all files."
-	echo
-	echo "Examples:"
-	echo "  Convert \"JPG\" extension to \"jpg\""
-	echo "    $CODENAME -p -v '[jJ][pP][eE]?[gG]\$' 'jpg' *"
-	echo "  Convert \"###\" to \"S#E##\""
-	echo "    $CODENAME -p -v '^([0-9])([0-9][0-9])' 'S\1E\2' *.mkv"
-	echo "  Convert upper case to lower case"
-	echo "    $CODENAME -p -v '(.*)' '\L\1' *"
-	echo "  Convert lower case to upper case"
-	echo "    $CODENAME -p -v '(.*)' '\U\1' *"
-	echo
-	echo "Version:"
-	echo "  $NAME $VERSION"
-	echo "  $COPYRIGHT"
-	echo "  Licensed under $LICENSE"
+	printf '%s\n' "Description:"
+	printf '%s\n' "  Move or rename files that match the given regular expression."
+	printf '%s\n'
+	printf '%s\n' "Usage:"
+	printf '%s\n' "  $CODENAME [options] SOURCE_REGEX DESTINATION_REGEX FILE..."
+	printf '%s\n'
+	printf '%s\n' "Options:"
+	printf '%s\n' "  -f, --force"
+	printf '%s\n' "    Do not prompt before overwriting files. Disabled by default, but writable"
+	printf '%s\n' "    files are still overwritten by default."
+	printf '%s\n' "    Without this option, overwrite files that are writable, and only prompt for"
+	printf '%s\n' "    files that are not writable."
+	printf '%s\n' "    With this option, overwrite all files without prompting."
+	printf '%s\n' "    If you specify more than one of -f, -i, -n, only the final one takes effect."
+	printf '%s\n' "    See -i or -n to disable overwriting existing files."
+	printf '%s\n' "  -h, --help"
+	printf '%s\n' "    Display this help message and exit."
+	printf '%s\n' "  -i, --interactive"
+	printf '%s\n' "    Prompt before overwriting files. Disabled by default."
+	printf '%s\n' "    If you specify more than one of -f, -i, -n, only the final one takes effect."
+	printf '%s\n' "  -n, --no-clobber"
+	printf '%s\n' "    Do not overwrite files. Disabled by default."
+	printf '%s\n' "    If you specify more than one of -f, -i, -n, only the final one takes effect."
+	printf '%s\n' "  -p, --pretend"
+	printf '%s\n' "    Performs a dry run and prints out what files would be moved. No files are"
+	printf '%s\n' "    actually moved. This option will increase the verbosity level from 0 to 1."
+	printf '%s\n' "  -v"
+	printf '%s\n' "    Increase the verbosity level by 1."
+	printf '%s\n' "  --verbose #"
+	printf '%s\n' "    Use more or less verbose output. Valid values are:"
+	printf '%s\n' "      0  Default. No output."
+	printf '%s\n' "      1  Show only the files that are moved."
+	printf '%s\n' "      2  Show all files."
+	printf '%s\n'
+	printf '%s\n' "Examples:"
+	printf '%s\n' "  Convert \"JPG\" extension to \"jpg\""
+	printf '%s\n' "    $CODENAME -p -v '[jJ][pP][eE]?[gG]\$' 'jpg' *"
+	printf '%s\n' "  Convert \"###\" to \"S#E##\""
+	printf '%s\n' "    $CODENAME -p -v '^([0-9])([0-9][0-9])' 'S\1E\2' *.mkv"
+	printf '%s\n' "  Convert upper case to lower case"
+	printf '%s\n' "    $CODENAME -p -v '(.*)' '\L\1' *"
+	printf '%s\n' "  Convert lower case to upper case"
+	printf '%s\n' "    $CODENAME -p -v '(.*)' '\U\1' *"
+	printf '%s\n'
+	printf '%s\n' "Version:"
+	printf '%s\n' "  $NAME $VERSION"
+	printf '%s\n' "  $COPYRIGHT"
+	printf '%s\n' "  Licensed under $LICENSE"
 }
 
 #------------------------------------------------------------------------------
@@ -72,7 +72,7 @@ NAME="mvregex"
 CODENAME="mvregex"
 COPYRIGHT="Copyright (C) 2007 Nathan Shearer"
 LICENSE="GNU General Public License 2.0"
-VERSION="2.0.0.0"
+VERSION="2.0.0.1"
 
 #------------------------------------------------------------------------------
 # default configuration

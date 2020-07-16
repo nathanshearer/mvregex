@@ -43,6 +43,6 @@ Examples:
     mvregex -p -v '(.*)' '\U\1' *
 
 Version:
-  mvregex 2.0.0.0
+  mvregex 2.0.0.1
   Copyright (C) 2007 Nathan Shearer
   Licensed under GNU General Public License 2.0
