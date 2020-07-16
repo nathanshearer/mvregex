@@ -41,6 +41,8 @@ function mvregex_help
 	printf '%s\n' "  -p, --pretend"
 	printf '%s\n' "    Performs a dry run and prints out what files would be moved. No files are"
 	printf '%s\n' "    actually moved. This option will increase the verbosity level from 0 to 1."
+	printf '%s\n' "  -r, --recursive"
+	printf '%s\n' "    Process files in directories recursively. Disabled by default."
 	printf '%s\n' "  -v"
 	printf '%s\n' "    Increase the verbosity level by 1."
 	printf '%s\n' "  --verbose #"
@@ -58,11 +60,53 @@ function mvregex_help
 	printf '%s\n' "    $CODENAME -p -v '(.*)' '\L\1' *"
 	printf '%s\n' "  Convert lower case to upper case"
 	printf '%s\n' "    $CODENAME -p -v '(.*)' '\U\1' *"
+	printf '%s\n' "  Remove trailing spaces on all files recursively"
+	printf '%s\n' "    $CODENAME -p -r '^(.*) +$' '\1' *"
 	printf '%s\n'
 	printf '%s\n' "Version:"
 	printf '%s\n' "  $NAME $VERSION"
 	printf '%s\n' "  $COPYRIGHT"
 	printf '%s\n' "  Licensed under $LICENSE"
+}
+
+function mvregex_main
+{
+	for SOURCE in "$@"; do
+		if $RECURSIVE && [ "$(stat -c %F "$SOURCE")" = "directory" ]; then
+			PREFIX_OLD="$PREFIX"
+			PREFIX="$PREFIX$SOURCE/"
+			pushd "$SOURCE" >/dev/null
+				find -mindepth 1 -maxdepth 1 -print0 | \
+					sort -z | \
+					uniq -z | \
+					{
+						local STATUS=0
+						while read -r -d $'\0' FILE; do
+							# strip the leading ./ that find prepends to each string
+							FILE=$(printf "%s" "$FILE" | sed -r 's/^\.\///')
+
+							mvregex_main "$FILE"
+							if [ $? -ne 0 ]; then
+								STATUS=1
+							fi
+						done
+						return $STATUS
+					}
+			popd >/dev/null
+			PREFIX="$PREFIX_OLD"
+		fi
+		
+		DESTINATION=$(printf %s "$SOURCE" | sed -r "s/$SOURCE_REGEX/$DESTINATION_REGEX/")
+		if [ \( $VERBOSE -ge 1 \) -a \( "$SOURCE" != "$DESTINATION" \) ]; then
+			printf '%s\n' "'$PREFIX$SOURCE' -> '$PREFIX$DESTINATION'"
+		fi
+		if [ \( $VERBOSE -ge 2 \) -a \( "$SOURCE" = "$DESTINATION" \) ]; then
+			printf '%s\n' "'$PREFIX$SOURCE' -> '$PREFIX$DESTINATION'"
+		fi
+		if ! $PRETEND && [ "$SOURCE" != "$DESTINATION" ]; then
+			mv $MV_ARGS -- "$SOURCE" "$DESTINATION"
+		fi
+	done
 }
 
 #------------------------------------------------------------------------------
@@ -72,13 +116,14 @@ NAME="mvregex"
 CODENAME="mvregex"
 COPYRIGHT="Copyright (C) 2007 Nathan Shearer"
 LICENSE="GNU General Public License 2.0"
-VERSION="2.0.0.1"
+VERSION="2.1.0.0"
 
 #------------------------------------------------------------------------------
 # default configuration
 
 MV_ARGS=""
 PRETEND=false
+RECURSIVE=false
 VERBOSE=0
 
 #------------------------------------------------------------------------------
@@ -125,6 +170,10 @@ while [ $# -ne 0 ]; do
 			fi
 			shift
 			;;
+		"-r"|"--recursive")
+			RECURSIVE=true
+			shift
+			;;
 		"-v")
 			VERBOSE=$(($VERBOSE+1))
 			shift
@@ -151,15 +200,5 @@ mvregex_check_dependencies sed mv
 #------------------------------------------------------------------------------
 # begin execution
 
-for SOURCE in "$@"; do
-	DESTINATION=$(printf %s "$SOURCE" | sed -r "s/$SOURCE_REGEX/$DESTINATION_REGEX/")
-	if [ \( $VERBOSE -ge 1 \) -a \( "$SOURCE" != "$DESTINATION" \) ]; then
-		printf '%s\n' "'$SOURCE' -> '$DESTINATION'"
-	fi
-	if [ \( $VERBOSE -ge 2 \) -a \( "$SOURCE" = "$DESTINATION" \) ]; then
-		printf '%s\n' "'$SOURCE' -> '$DESTINATION'"
-	fi
-	if ! $PRETEND && [ "$SOURCE" != "$DESTINATION" ]; then
-		mv $MV_ARGS -- "$SOURCE" "$DESTINATION"
-	fi
-done
+PREFIX=""
+mvregex_main "$@"

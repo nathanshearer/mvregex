@@ -24,6 +24,8 @@ Options:
   -p, --pretend
     Performs a dry run and prints out what files would be moved. No files are
     actually moved. This option will increase the verbosity level from 0 to 1.
+  -r, --recursive
+    Process files in directories recursively. Disabled by default.
   -v
     Increase the verbosity level by 1.
   --verbose #
@@ -43,6 +45,6 @@ Examples:
     mvregex -p -v '(.*)' '\U\1' *
 
 Version:
-  mvregex 2.0.0.1
+  mvregex 2.1.0.0
   Copyright (C) 2007 Nathan Shearer
   Licensed under GNU General Public License 2.0
