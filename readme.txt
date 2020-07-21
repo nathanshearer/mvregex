@@ -43,8 +43,12 @@ Examples:
     mvregex -p -v '(.*)' '\L\1' *
   Convert lower case to upper case
     mvregex -p -v '(.*)' '\U\1' *
+  Remove trailing spaces on all files recursively
+    mvregex -p -r '^(.*) +$' '\1' *
+  Remove trailing . on all files recursively
+    mvregex -p -r '^(.*)\\.+$' '\1' *
 
 Version:
-  mvregex 2.1.0.0
+  mvregex 2.1.1.0
   Copyright (C) 2007 Nathan Shearer
   Licensed under GNU General Public License 2.0
