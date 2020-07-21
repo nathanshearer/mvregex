@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 
+NAME="mvregex"
+CODENAME="mvregex"
+COPYRIGHT="Copyright (C) 2007 Nathan Shearer"
+LICENSE="GNU General Public License 2.0"
+VERSION="2.1.1.1"
+
 # \brief Ensures dependencies are present
 # \param $@ The dependencies to check for
 function mvregex_check_dependencies
@@ -107,15 +113,6 @@ function mvregex_main
 		fi
 	done
 }
-
-#------------------------------------------------------------------------------
-# hard coded variables
-
-NAME="mvregex"
-CODENAME="mvregex"
-COPYRIGHT="Copyright (C) 2007 Nathan Shearer"
-LICENSE="GNU General Public License 2.0"
-VERSION="2.1.1.0"
 
 #------------------------------------------------------------------------------
 # default configuration

@@ -49,6 +49,6 @@ Examples:
     mvregex -p -r '^(.*)\\.+$' '\1' *
 
 Version:
-  mvregex 2.1.1.0
+  mvregex 2.1.1.1
   Copyright (C) 2007 Nathan Shearer
   Licensed under GNU General Public License 2.0
