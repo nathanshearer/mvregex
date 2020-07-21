@@ -46,7 +46,7 @@ Examples:
   Remove trailing spaces on all files recursively
     mvregex -p -r '^(.*) +$' '\1' *
   Remove trailing . on all files recursively
-    mvregex -p -r '^(.*)\\.+$' '\1' *
+    mvregex -p -r '^(.*)\.+$' '\1' *
 
 Version:
   mvregex 2.1.1.1

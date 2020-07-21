@@ -69,7 +69,7 @@ function mvregex_help
 	printf '%s\n' "  Remove trailing spaces on all files recursively"
 	printf '%s\n' "    $CODENAME -p -r '^(.*) +$' '\1' *"
 	printf '%s\n' "  Remove trailing . on all files recursively"
-	printf '%s\n' "    $CODENAME -p -r '^(.*)\\\\.+$' '\1' *"
+	printf '%s\n' "    $CODENAME -p -r '^(.*)\\.+$' '\1' *"
 	printf '%s\n'
 	printf '%s\n' "Version:"
 	printf '%s\n' "  $NAME $VERSION"
