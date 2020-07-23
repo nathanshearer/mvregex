@@ -18,12 +18,18 @@ Options:
   -i, --interactive
     Prompt before overwriting files. Disabled by default.
     If you specify more than one of -f, -i, -n, only the final one takes effect.
+  --merge
+    Merge files into existing destination folders. Disabled by default.
   -n, --no-clobber
     Do not overwrite files. Disabled by default.
     If you specify more than one of -f, -i, -n, only the final one takes effect.
+  --no-merge
+    Disable --merge.
+  --no-recursive
+    Disable --recursive.
   -p, --pretend
-    Performs a dry run and prints out what files would be moved. No files are
-    actually moved. This option will increase the verbosity level from 0 to 1.
+    Perform a simulation only. No files are actually moved ore renamed.
+    This option will increase the verbosity level to 2.
   -r, --recursive
     Process files in directories recursively. Disabled by default.
   -v
@@ -31,8 +37,9 @@ Options:
   --verbose #
     Use more or less verbose output. Valid values are:
       0  Default. No output.
-      1  Show only the files that are moved.
-      2  Show all files.
+      1  Show only renamed files.
+      2  Show subfiles that are moved during a folder merge.
+      3  Show all files.
 
 Examples:
   Convert "JPG" extension to "jpg"
@@ -47,8 +54,10 @@ Examples:
     mvregex -p -r '^(.*) +$' '\1' *
   Remove trailing . on all files recursively
     mvregex -p -r '^(.*)\.+$' '\1' *
+  Remove trailing unicode byte sequence EF80A8 on all files recursively
+    mvregex -p -r '^(.*)\xEF\x80\xA8$' '\1' *
 
 Version:
-  mvregex 2.1.1.1
+  mvregex 2.2.0.0
   Copyright (C) 2007 Nathan Shearer
   Licensed under GNU General Public License 2.0

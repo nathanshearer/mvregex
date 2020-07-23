@@ -4,7 +4,7 @@ NAME="mvregex"
 CODENAME="mvregex"
 COPYRIGHT="Copyright (C) 2007 Nathan Shearer"
 LICENSE="GNU General Public License 2.0"
-VERSION="2.1.1.1"
+VERSION="2.2.0.0"
 
 # \brief Ensures dependencies are present
 # \param $@ The dependencies to check for
@@ -20,7 +20,7 @@ function mvregex_check_dependencies
 
 function mvregex_help
 {
-	#     01234567890123456789012345678901234567890123456789012345678901234567890123456789
+	#              01234567890123456789012345678901234567890123456789012345678901234567890123456789
 	printf '%s\n' "Description:"
 	printf '%s\n' "  Move or rename files that match the given regular expression."
 	printf '%s\n'
@@ -41,12 +41,18 @@ function mvregex_help
 	printf '%s\n' "  -i, --interactive"
 	printf '%s\n' "    Prompt before overwriting files. Disabled by default."
 	printf '%s\n' "    If you specify more than one of -f, -i, -n, only the final one takes effect."
+	printf '%s\n' "  --merge"
+	printf '%s\n' "    Merge files into existing destination folders. Disabled by default."
 	printf '%s\n' "  -n, --no-clobber"
 	printf '%s\n' "    Do not overwrite files. Disabled by default."
 	printf '%s\n' "    If you specify more than one of -f, -i, -n, only the final one takes effect."
+	printf '%s\n' "  --no-merge"
+	printf '%s\n' "    Disable --merge."
+	printf '%s\n' "  --no-recursive"
+	printf '%s\n' "    Disable --recursive."
 	printf '%s\n' "  -p, --pretend"
-	printf '%s\n' "    Performs a dry run and prints out what files would be moved. No files are"
-	printf '%s\n' "    actually moved. This option will increase the verbosity level from 0 to 1."
+	printf '%s\n' "    Perform a simulation only. No files are actually moved ore renamed."
+	printf '%s\n' "    This option will increase the verbosity level to 2."
 	printf '%s\n' "  -r, --recursive"
 	printf '%s\n' "    Process files in directories recursively. Disabled by default."
 	printf '%s\n' "  -v"
@@ -54,8 +60,9 @@ function mvregex_help
 	printf '%s\n' "  --verbose #"
 	printf '%s\n' "    Use more or less verbose output. Valid values are:"
 	printf '%s\n' "      0  Default. No output."
-	printf '%s\n' "      1  Show only the files that are moved."
-	printf '%s\n' "      2  Show all files."
+	printf '%s\n' "      1  Show only renamed files."
+	printf '%s\n' "      2  Show subfiles that are moved during a folder merge."
+	printf '%s\n' "      3  Show all files."
 	printf '%s\n'
 	printf '%s\n' "Examples:"
 	printf '%s\n' "  Convert \"JPG\" extension to \"jpg\""
@@ -70,6 +77,8 @@ function mvregex_help
 	printf '%s\n' "    $CODENAME -p -r '^(.*) +$' '\1' *"
 	printf '%s\n' "  Remove trailing . on all files recursively"
 	printf '%s\n' "    $CODENAME -p -r '^(.*)\\.+$' '\1' *"
+	printf '%s\n' "  Remove trailing unicode byte sequence EF80A8 on all files recursively"
+	printf '%s\n' "    $CODENAME -p -r '^(.*)\\xEF\\x80\\xA8$' '\1' *"
 	printf '%s\n'
 	printf '%s\n' "Version:"
 	printf '%s\n' "  $NAME $VERSION"
@@ -89,7 +98,6 @@ function mvregex_main
 					while IFS= read -r -d $'\0' FILE; do
 						# strip the leading ./ that find prepends to each string
 						FILE=$(printf "%s" "$FILE" | sed -r 's/^\.\///')
-
 						mvregex_main "$FILE"
 						if [ $? -ne 0 ]; then
 							STATUS=1
@@ -99,25 +107,64 @@ function mvregex_main
 				}
 		fi
 
-		SRC_NAME=$(basename "$SRC")
-		SRC_PATH=$(dirname "$SRC")
-		DST_NAME=$(printf %s "$SRC_NAME" | sed -r "s/$SOURCE_REGEX/$DESTINATION_REGEX/")
-		if [ \( $VERBOSE -ge 1 \) -a \( "$SRC_NAME" != "$DST_NAME" \) ]; then
-			printf '%s\n' "'$SRC_PATH/$SRC_NAME' -> '$SRC_PATH/$DST_NAME'"
+		local SRC_PATH=$(dirname "$SRC")
+		if [ "$SRC_PATH" = '.' ]; then
+			SRC_PATH=""
+		else
+			SRC_PATH="$SRC_PATH/"
 		fi
-		if [ \( $VERBOSE -ge 2 \) -a \( "$SRC_NAME" = "$DST_NAME" \) ]; then
-			printf '%s\n' "'$SRC_PATH/$SRC_NAME' -> '$SRC_PATH/$DST_NAME'"
+		local SRC_NAME=$(basename "$SRC")
+		local DST_NAME=$(printf %s "$SRC_NAME" | sed -r "s/$SOURCE_REGEX/$DESTINATION_REGEX/")
+		if [ \( $VERBOSE -ge 3 \) -a \( "$SRC_NAME" = "$DST_NAME" \) ]; then
+			printf '%s\n' "'$SRC_PATH$SRC_NAME' -> '$SRC_PATH$DST_NAME'"
 		fi
-		if ! $PRETEND && [ "$SRC_NAME" != "$DST_NAME" ]; then
-			mv $MV_ARGS -- "$SRC_PATH/$SRC_NAME" "$SRC_PATH/$DST_NAME"
+		if [ "$SRC_NAME" != "$DST_NAME" ]; then
+			mvregex_mv "$SRC_PATH$SRC_NAME" "$SRC_PATH$DST_NAME"
+			if [ \( $? -eq 0 \) -a  \( $VERBOSE -ge 1 \) ]; then
+				printf '%s\n' "'$SRC_PATH$SRC_NAME' -> '$SRC_PATH$DST_NAME'"
+			fi
 		fi
 	done
+}
+
+function mvregex_mv
+{
+	local SRC="$1"
+	local DST="$2"
+	
+	if $MERGE && [ -d "$SRC" -a -d "$DST" ]; then
+		find "$SRC" -mindepth 1 -maxdepth 1 -print0 | \
+			sort -z | \
+			uniq -z | \
+			{
+				local STATUS=0
+				while IFS= read -r -d $'\0' FILE; do
+					# strip the leading ./ that find prepends to each string
+					FILE=$(printf "%s" "$FILE" | sed -r 's/^\.\///')
+					local FILE_BASENAME=$(basename "$FILE")
+					if [ $VERBOSE -ge 2 ]; then
+						printf '%s\n' "'$FILE' -> '$DST/$FILE_BASENAME'"
+					fi
+					mvregex_mv "$FILE" "$DST/$FILE_BASENAME"
+					if [ $? -ne 0 ]; then
+						STATUS=1
+					fi
+				done
+				return $STATUS
+			}
+		$PRETEND || rmdir "$SRC"
+		return
+	fi
+	if ! $PRETEND && [ "$SRC" != "$DST" ]; then
+		mv $MV_ARGS -- "$SRC" "$DST"
+	fi
 }
 
 #------------------------------------------------------------------------------
 # default configuration
 
-MV_ARGS=""
+MV_ARGS="-T"
+MERGE=false
 PRETEND=false
 RECURSIVE=false
 VERBOSE=0
@@ -155,14 +202,26 @@ while [ $# -ne 0 ]; do
 			MV_ARGS="$MV_ARGS -i"
 			shift
 			;;
+		"--merge")
+			MERGE=true
+			shift
+			;;
 		"-n"|"--no-clobber")
 			MV_ARGS="$MV_ARGS -n"
 			shift
 			;;
+		"--no-merge")
+			MERGE=false
+			shift
+			;;
+		"--no-recursive")
+			RECURSIVE=false
+			shift
+			;;
 		"-p"|"--pretend")
 			PRETEND=true
-			if [ "$VERBOSE" -eq 0 ]; then
-				VERBOSE=1
+			if [ "$VERBOSE" -lt 2 ]; then
+				VERBOSE=2
 			fi
 			shift
 			;;
@@ -191,7 +250,7 @@ shift
 #------------------------------------------------------------------------------
 # prepare environment
 
-mvregex_check_dependencies sed mv
+mvregex_check_dependencies find sed mv
 
 #------------------------------------------------------------------------------
 # begin execution
