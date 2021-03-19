@@ -4,7 +4,7 @@ NAME="mvregex"
 CODENAME="mvregex"
 COPYRIGHT="Copyright (C) 2007 Nathan Shearer"
 LICENSE="GNU General Public License 2.0"
-VERSION="2.2.0.0"
+VERSION="2.3.0.0"
 
 # \brief Ensures dependencies are present
 # \param $@ The dependencies to check for
@@ -75,10 +75,12 @@ function mvregex_help
 	printf '%s\n' "    $CODENAME -p -v '(.*)' '\U\1' *"
 	printf '%s\n' "  Remove trailing spaces on all files recursively"
 	printf '%s\n' "    $CODENAME -p -r '^(.*) +$' '\1' *"
+	printf '%s\n' "  Remove trailing spaces (cygwin encoded byte sequence EF80A8) on all files recursively"
+	printf '%s\n' "    $CODENAME -p -r '^(.*)\\xEF\\x80\\xA8$' '\1' *"
 	printf '%s\n' "  Remove trailing . on all files recursively"
 	printf '%s\n' "    $CODENAME -p -r '^(.*)\\.+$' '\1' *"
-	printf '%s\n' "  Remove trailing unicode byte sequence EF80A8 on all files recursively"
-	printf '%s\n' "    $CODENAME -p -r '^(.*)\\xEF\\x80\\xA8$' '\1' *"
+	printf '%s\n' "  Remove trailing . (cygwin encoded byte sequence EF80A9) on all files recursively"
+	printf '%s\n' "    $CODENAME -p -r '^(.*)\\xEF\\x80\\xA9$' '\1' *"
 	printf '%s\n'
 	printf '%s\n' "Version:"
 	printf '%s\n' "  $NAME $VERSION"

@@ -32,6 +32,8 @@ Options:
     This option will increase the verbosity level to 2.
   -r, --recursive
     Process files in directories recursively. Disabled by default.
+  --transliterate windows
+    .
   -v
     Increase the verbosity level by 1.
   --verbose #
@@ -52,12 +54,14 @@ Examples:
     mvregex -p -v '(.*)' '\U\1' *
   Remove trailing spaces on all files recursively
     mvregex -p -r '^(.*) +$' '\1' *
+  Remove trailing spaces (cygwin encoded byte sequence EF80A8) on all files recursively
+    mvregex -p -r '^(.*)\xEF\x80\xA8$' '\1' *
   Remove trailing . on all files recursively
     mvregex -p -r '^(.*)\.+$' '\1' *
-  Remove trailing unicode byte sequence EF80A8 on all files recursively
-    mvregex -p -r '^(.*)\xEF\x80\xA8$' '\1' *
+  Remove trailing . (cygwin encoded byte sequence EF80A9) on all files recursively
+    mvregex -p -r '^(.*)\xEF\x80\xA9$' '\1' *
 
 Version:
-  mvregex 2.2.0.0
+  mvregex 2.3.0.0
   Copyright (C) 2007 Nathan Shearer
   Licensed under GNU General Public License 2.0
