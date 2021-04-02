@@ -3,6 +3,7 @@ Description:
 
 Usage:
   mvregex [options] SOURCE_REGEX DESTINATION_REGEX FILE...
+  mvregex [options] --transliterate windows FILE...
 
 Options:
   -f, --force
@@ -33,7 +34,19 @@ Options:
   -r, --recursive
     Process files in directories recursively. Disabled by default.
   --transliterate windows
-    .
+    Convert strings into a format supported by windows:
+      double quote '"' -> two single quotes "''"
+      colon ':' -> ratio '∶' U+2236 (UTF-8 0xE288B6)
+      asterisk '*' -> heavy asterisk '✱' U+2731 (UTF-8 0xE29CB1)
+      backslash '\' -> underscore '_'
+      question mark '?' -> underscore '_'
+      pipe '|' -> underscore '_'
+      less than '<' -> underscore '_'
+      greater than '>' -> underscore '_'
+      remove trailing spaces (ASCII 0x20)
+      remove trailing spaces (cygwin UTF-8 0xEF80A8)
+      remove trailing period (ASCII 0x2E)
+      remove trailing period (cygwin UTF-8 0xEF80A9)
   -v
     Increase the verbosity level by 1.
   --verbose #
@@ -62,6 +75,6 @@ Examples:
     mvregex -p -r '^(.*)\xEF\x80\xA9$' '\1' *
 
 Version:
-  mvregex 2.3.0.0
+  mvregex 2.4.0.0
   Copyright (C) 2007 Nathan Shearer
   Licensed under GNU General Public License 2.0

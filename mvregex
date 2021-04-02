@@ -4,7 +4,7 @@ NAME="mvregex"
 CODENAME="mvregex"
 COPYRIGHT="Copyright (C) 2007 Nathan Shearer"
 LICENSE="GNU General Public License 2.0"
-VERSION="2.3.0.0"
+VERSION="2.4.0.0"
 
 # \brief Ensures dependencies are present
 # \param $@ The dependencies to check for
@@ -26,6 +26,7 @@ function mvregex_help
 	printf '%s\n'
 	printf '%s\n' "Usage:"
 	printf '%s\n' "  $CODENAME [options] SOURCE_REGEX DESTINATION_REGEX FILE..."
+	printf '%s\n' "  $CODENAME [options] --transliterate windows FILE..."
 	printf '%s\n'
 	printf '%s\n' "Options:"
 	printf '%s\n' "  -f, --force"
@@ -55,6 +56,20 @@ function mvregex_help
 	printf '%s\n' "    This option will increase the verbosity level to 2."
 	printf '%s\n' "  -r, --recursive"
 	printf '%s\n' "    Process files in directories recursively. Disabled by default."
+	printf '%s\n' "  --transliterate windows"
+	printf '%s\n' "    Convert strings into a format supported by windows:"
+	printf '%s\n' "      double quote '\"' -> two single quotes \"''\""
+	printf '%s\n' "      colon ':' -> ratio '∶' U+2236 (UTF-8 0xE288B6)"
+	printf '%s\n' "      asterisk '*' -> heavy asterisk '✱' U+2731 (UTF-8 0xE29CB1)"
+	printf '%s\n' "      backslash '\\' -> underscore '_'"
+	printf '%s\n' "      question mark '?' -> underscore '_'"
+	printf '%s\n' "      pipe '|' -> underscore '_'"
+	printf '%s\n' "      less than '<' -> underscore '_'"
+	printf '%s\n' "      greater than '>' -> underscore '_'"
+	printf '%s\n' "      remove trailing spaces (ASCII 0x20)"
+	printf '%s\n' "      remove trailing spaces (cygwin UTF-8 0xEF80A8)"
+	printf '%s\n' "      remove trailing period (ASCII 0x2E)"
+	printf '%s\n' "      remove trailing period (cygwin UTF-8 0xEF80A9)"
 	printf '%s\n' "  -v"
 	printf '%s\n' "    Increase the verbosity level by 1."
 	printf '%s\n' "  --verbose #"
@@ -116,7 +131,36 @@ function mvregex_main
 			SRC_PATH="$SRC_PATH/"
 		fi
 		local SRC_NAME=$(basename "$SRC")
-		local DST_NAME=$(printf %s "$SRC_NAME" | sed -r "s/$SOURCE_REGEX/$DESTINATION_REGEX/")
+		local DST_NAME=
+		if [ "$TRANSLITERATE" = "windows" ]; then
+			DST_NAME="$SRC_NAME"
+			# double quote '\"' -> two single quotes \"''\"
+			DST_NAME=$(printf %s "$DST_NAME" | sed -r "s/\"/''/g")
+			# colon ':' -> ratio '∶' U+2236 (UTF-8 0xE288B6)
+			DST_NAME=$(printf %s "$DST_NAME" | sed -r "s/:/∶/g")
+			# asterisk '*' -> heavy asterisk '✱' U+2731 (UTF-8 0xE29CB1)
+			DST_NAME=$(printf %s "$DST_NAME" | sed -r "s/\*/✱/g")
+			# backslash '\\' -> underscore '_'
+			DST_NAME=$(printf %s "$DST_NAME" | sed -r "s/\\//_/g")
+			# question mark '?' -> underscore '_'
+			DST_NAME=$(printf %s "$DST_NAME" | sed -r "s/\\?/_/g")
+			# pipe '|' -> underscore '_'
+			DST_NAME=$(printf %s "$DST_NAME" | sed -r "s/\\|/_/g")
+			# less than '<' -> underscore '_'
+			DST_NAME=$(printf %s "$DST_NAME" | sed -r "s/</_/g")
+			# greater than '>' -> underscore '_'
+			DST_NAME=$(printf %s "$DST_NAME" | sed -r "s/>/_/g")
+			# remove trailing spaces (ASCII 0x20)
+			DST_NAME=$(printf %s "$DST_NAME" | sed -r "s/^(.*[^ ]) +$/\\1/")
+			# remove trailing spaces (cygwin UTF-8 0xEF80A8)
+			DST_NAME=$(printf %s "$DST_NAME" | sed -r "s/^(.*[^\xEF\x80\xA8])\xEF\x80\xA8+$/\\1/")
+			# remove trailing period (ASCII 0x2E)
+			DST_NAME=$(printf %s "$DST_NAME" | sed -r "s/^(.*[^.])\\.+$/\\1/")
+			# remove trailing period (cygwin UTF-8 0xEF80A9)
+			DST_NAME=$(printf %s "$DST_NAME" | sed -r "s/^(.*[^\xEF\x80\xA9])\xEF\x80\xA9+$/\\1/")
+		else
+			DST_NAME=$(printf %s "$SRC_NAME" | sed -r "s/$SOURCE_REGEX/$DESTINATION_REGEX/")
+		fi
 		if [ \( $VERBOSE -ge 3 \) -a \( "$SRC_NAME" = "$DST_NAME" \) ]; then
 			printf '%s\n' "'$SRC_PATH$SRC_NAME' -> '$SRC_PATH$DST_NAME'"
 		fi
@@ -169,6 +213,7 @@ MV_ARGS="-T"
 MERGE=false
 PRETEND=false
 RECURSIVE=false
+TRANSLITERATE=false
 VERBOSE=0
 
 #------------------------------------------------------------------------------
@@ -231,6 +276,10 @@ while [ $# -ne 0 ]; do
 			RECURSIVE=true
 			shift
 			;;
+		"--transliterate")
+			TRANSLITERATE="$2"
+			shift 2
+			;;
 		"-v")
 			VERBOSE=$(($VERBOSE+1))
 			shift
@@ -244,10 +293,17 @@ while [ $# -ne 0 ]; do
 	esac
 done
 
-SOURCE_REGEX="$1"
-shift
-DESTINATION_REGEX="$1"
-shift
+if [ "$TRANSLITERATE" = "false" ]; then
+	SOURCE_REGEX="$1"
+	shift
+	DESTINATION_REGEX="$1"
+	shift
+else
+	if [ "$TRANSLITERATE" != "windows" ]; then
+		printf '%s\n' "error: unrecognized transliterate option \"$TRANSLITERATE\""
+		exit 1
+	fi
+fi
 
 #------------------------------------------------------------------------------
 # prepare environment
