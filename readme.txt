@@ -34,8 +34,8 @@ Options:
   -r, --recursive
     Process files in directories recursively. Disabled by default.
   --transliterate windows
-    Convert strings into a format supported by windows:
-      double quote '"' -> two single quotes "''"
+    Convert characters into a string supported by windows:
+      double quote '"' (ASCII 0x22) -> two single quotes "''" (ASCII 0x2727)
       colon ':' -> ratio '∶' U+2236 (UTF-8 0xE288B6)
       asterisk '*' -> heavy asterisk '✱' U+2731 (UTF-8 0xE29CB1)
       backslash '\' -> underscore '_'
@@ -47,6 +47,8 @@ Options:
       remove trailing spaces (cygwin UTF-8 0xEF80A8)
       remove trailing period (ASCII 0x2E)
       remove trailing period (cygwin UTF-8 0xEF80A9)
+    Convert strings into a format supported by windows:
+      s/^ *$/_space_/
   -v
     Increase the verbosity level by 1.
   --verbose #
@@ -75,6 +77,6 @@ Examples:
     mvregex -p -r '^(.*)\xEF\x80\xA9$' '\1' *
 
 Version:
-  mvregex 2.4.0.0
+  mvregex 2.5.0.0
   Copyright (C) 2007 Nathan Shearer
   Licensed under GNU General Public License 2.0

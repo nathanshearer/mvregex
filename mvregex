@@ -4,7 +4,7 @@ NAME="mvregex"
 CODENAME="mvregex"
 COPYRIGHT="Copyright (C) 2007 Nathan Shearer"
 LICENSE="GNU General Public License 2.0"
-VERSION="2.4.0.0"
+VERSION="2.5.0.0"
 
 # \brief Ensures dependencies are present
 # \param $@ The dependencies to check for
@@ -57,8 +57,8 @@ function mvregex_help
 	printf '%s\n' "  -r, --recursive"
 	printf '%s\n' "    Process files in directories recursively. Disabled by default."
 	printf '%s\n' "  --transliterate windows"
-	printf '%s\n' "    Convert strings into a format supported by windows:"
-	printf '%s\n' "      double quote '\"' -> two single quotes \"''\""
+	printf '%s\n' "    Convert characters into a string supported by windows:"
+	printf '%s\n' "      double quote '\"' (ASCII 0x22) -> two single quotes \"''\" (ASCII 0x2727)"
 	printf '%s\n' "      colon ':' -> ratio '∶' U+2236 (UTF-8 0xE288B6)"
 	printf '%s\n' "      asterisk '*' -> heavy asterisk '✱' U+2731 (UTF-8 0xE29CB1)"
 	printf '%s\n' "      backslash '\\' -> underscore '_'"
@@ -70,6 +70,8 @@ function mvregex_help
 	printf '%s\n' "      remove trailing spaces (cygwin UTF-8 0xEF80A8)"
 	printf '%s\n' "      remove trailing period (ASCII 0x2E)"
 	printf '%s\n' "      remove trailing period (cygwin UTF-8 0xEF80A9)"
+	printf '%s\n' "    Convert strings into a format supported by windows:"
+	printf '%s\n' "      s/^ *$/_space_/"
 	printf '%s\n' "  -v"
 	printf '%s\n' "    Increase the verbosity level by 1."
 	printf '%s\n' "  --verbose #"
@@ -158,6 +160,8 @@ function mvregex_main
 			DST_NAME=$(printf %s "$DST_NAME" | sed -r "s/^(.*[^.])\\.+$/\\1/")
 			# remove trailing period (cygwin UTF-8 0xEF80A9)
 			DST_NAME=$(printf %s "$DST_NAME" | sed -r "s/^(.*[^\xEF\x80\xA9])\xEF\x80\xA9+$/\\1/")
+			# strings containing only space characters
+			DST_NAME=$(printf %s "$DST_NAME" | sed -r "s/^ *$/_space_/")
 		else
 			DST_NAME=$(printf %s "$SRC_NAME" | sed -r "s/$SOURCE_REGEX/$DESTINATION_REGEX/")
 		fi
