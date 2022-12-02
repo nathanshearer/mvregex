@@ -4,7 +4,7 @@ NAME="mvregex"
 CODENAME="mvregex"
 COPYRIGHT="Copyright (C) 2007 Nathan Shearer"
 LICENSE="GNU General Public License 2.0"
-VERSION="2.5.0.0"
+VERSION="2.5.1.0"
 
 # \brief Ensures dependencies are present
 # \param $@ The dependencies to check for
@@ -25,10 +25,12 @@ function mvregex_help
 	printf '%s\n' "  Move or rename files that match the given regular expression."
 	printf '%s\n'
 	printf '%s\n' "Usage:"
-	printf '%s\n' "  $CODENAME [options] SOURCE_REGEX DESTINATION_REGEX FILE..."
-	printf '%s\n' "  $CODENAME [options] --transliterate windows FILE..."
+	printf '%s\n' "  $CODENAME [options] [--] SOURCE_REGEX DESTINATION_REGEX FILE..."
+	printf '%s\n' "  $CODENAME [options] --transliterate windows [--] FILE..."
 	printf '%s\n'
 	printf '%s\n' "Options:"
+	printf '%s\n' "  --"
+	printf '%s\n' "    Stop parsing command options and process all remaining strings literally."
 	printf '%s\n' "  -f, --force"
 	printf '%s\n' "    Do not prompt before overwriting files. Disabled by default, but writable"
 	printf '%s\n' "    files are still overwritten by default."
@@ -241,6 +243,10 @@ fi
 THIS="$0"
 while [ $# -ne 0 ]; do
 	case "$1" in
+		"--")
+			shift
+			break
+			;;
 		"-f"|"--force")
 			MV_ARGS="$MV_ARGS -f"
 			shift

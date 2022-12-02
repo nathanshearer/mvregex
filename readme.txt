@@ -2,10 +2,12 @@ Description:
   Move or rename files that match the given regular expression.
 
 Usage:
-  mvregex [options] SOURCE_REGEX DESTINATION_REGEX FILE...
-  mvregex [options] --transliterate windows FILE...
+  mvregex [options] [--] SOURCE_REGEX DESTINATION_REGEX FILE...
+  mvregex [options] --transliterate windows [--] FILE...
 
 Options:
+  --
+    Stop parsing command options and process all remaining strings literally.
   -f, --force
     Do not prompt before overwriting files. Disabled by default, but writable
     files are still overwritten by default.
@@ -77,6 +79,6 @@ Examples:
     mvregex -p -r '^(.*)\xEF\x80\xA9$' '\1' *
 
 Version:
-  mvregex 2.5.0.0
+  mvregex 2.5.1.0
   Copyright (C) 2007 Nathan Shearer
   Licensed under GNU General Public License 2.0
